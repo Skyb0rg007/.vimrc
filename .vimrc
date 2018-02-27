@@ -1,10 +1,15 @@
 " Starts the VimPlug block
 call plug#begin('~/.vim/plugged')
 
-" Plug 'tomasr/molokai'            " Molokai Coloscheme
-" Plug 'calincru/peaksea.vim'      " Peaksea theme
 
-" Plug 'rhysd/clever-f.vim'        " Clever F
+Plug 'kana/vim-arpeggio'         " Mappings for pressing 2 keys at once
+Plug 'ktonga/vim-follow-my-lead' " <Leader>fml shows all mappings
+Plug 'majutsushi/tagbar'         " Handles showing class instances
+Plug 'mtth/scratch.vim'          " Scratch window
+Plug 'KeitaNakamura/neodark.vim' " Neodark
+Plug 'morhetz/gruvbox'           " GruvBox color theme
+Plug 'kien/ctrlp.vim'            " Fuzzy finder
+Plug 'maximbaz/lightline-ale'    " Lightline + ALE
 Plug 'scrooloose/nerdtree'       " NERDTree
 Plug 'itchyny/lightline.vim'     " Status bar
 Plug 'w0rp/ale'                  " Continuous linting
@@ -20,16 +25,26 @@ Plug 'easymotion/vim-easymotion' " EasyMotion
 Plug 'scrooloose/nerdcommenter'  " NERDCommenter
 Plug 'tpope/vim-fugitive'        " Git integration
 Plug 'zenbro/mirror.vim'         " Remote control
-Plug 'bling/vim-bufferline'      " Buffer control 2
+Plug 'bling/vim-bufferline'      " Buffer control
 Plug 'godlygeek/tabular', {'on':['Tab']} " Formatting
-Plug 'tpope/vim-fireplace',                        {'for':'clojure'} " Clojure quasi-REPL
-Plug 'tpope/vim-sexp-mappings-for-regular-people', {'for':'clojure'} " Sexy people = sexy mappings
-Plug 'guns/vim-sexp',                              {'for':'clojure'} " Lisp parenthesis help
-Plug 'guns/vim-clojure-static',                    {'for':'clojure'} " More Clojure support
-Plug 'guns/vim-clojure-highlight',                 {'for':'clojure'} " More Clojure highlighting
-Plug 'dgrnbrg/vim-redl',                           {'for':'clojure'} " Clojure REPL session
-Plug 'luochen1990/rainbow',                        {'for':'clojure'} " Rainbow Parenthesis
-Plug 'MicahElliott/vim-clojure-fontlocks',         {'for':'clojure'} " Clojure conceal
+
+" Clojure stuff
+Plug 'tpope/vim-fireplace',                        
+            \ {'for':'clojure'} " Clojure quasi-REPL
+Plug 'tpope/vim-sexp-mappings-for-regular-people', 
+            \ {'for':'clojure'} " Sexy people = sexy mappings
+Plug 'guns/vim-sexp',                              
+            \ {'for':'clojure'} " Lisp parenthesis help
+Plug 'guns/vim-clojure-static',                    
+            \ {'for':'clojure'} " More Clojure support
+Plug 'guns/vim-clojure-highlight',                 
+            \ {'for':'clojure'} " More Clojure highlighting
+Plug 'dgrnbrg/vim-redl',                           
+            \ {'for':'clojure'} " Clojure REPL session
+Plug 'luochen1990/rainbow',                        
+            \ {'for':'clojure'} " Rainbow Parenthesis
+Plug 'MicahElliott/vim-clojure-fontlocks',         
+            \ {'for':'clojure'} " Clojure conceal
 
 call plug#end()
 
@@ -56,27 +71,37 @@ let mapleader      = ","  " <Leader> is , (the comma)
 let g:mapleader    = ","  " Same as above
 let maplocalleader = ",q" " Because Sexp is weird
 set nowrap                " Long lines don't wrap
+set textwidth=0 wrapmargin=0 " Don't auto-insert newlines
+set ttimeoutlen=100  " Why is there a delay between insert and normal?
+                     " Who wants that???
 
 " Allow use of , and ; for f and t
 nnoremap ,, ,
+let g:fml_all_sources=1
 
 " Insert one letter
 nnoremap <Space> i_<ESC>r
 
-" :W saves when root is needed
-cmap W w !sudo tee > /dev/null %
+" ,ww saves when root is needed
+nnoremap <Leader>ww :w !sudo tee > /dev/null %
 
-" Pressing enter clears search highlighting
-nnoremap <CR> :noh<CR><CR> 
+" Pressing \ clears search highlighting
+nnoremap \ :noh<CR>
 
 " Buffer management
 set hidden   " Lets you hide modified buffers
-nmap <Leader>T  :enew<CR>
+nmap <Leader>t  :enew<CR>
 nmap <Leader>l  :bnext<CR>
 nmap <Leader>k  :bprevious<CR>
 nmap <Leader>bq :bp <BAR> bd #<CR>
 nmap <Leader>bd :bd<CR>
 nmap <Leader>bl :ls<CR>
+
+" Tab management
+nmap <Leader>T  :tabnew<CR>
+nmap <Leader>L  :tabnext<CR>
+nmap <Leader>K  :tabprevious<CR>
+nnoremap <C-W>t <C-W>T
 
 " Manage window sizes with arrow keys in normal mode
 inoremap <C-h> <Left>
@@ -115,6 +140,7 @@ endfunction
 let g:loaded_netrw       = 1
 let g:loaded_netrwPlugin = 1
 nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-q> <C-t>
 
 " ALE settings
 " Shows the linter the error comes from
@@ -122,41 +148,54 @@ let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s'
 
-" Sets color scheme:
-syntax enable
-set background=dark
-" colorscheme peaksea
-" colorscheme molokai
-set termguicolors
-
 " Lightline settings:
-set noshowmode   " Hides insert bar because Lightline takes care of it
-set laststatus=2 " Needed to ensure Lightline is shown
+set noshowmode    " Hides insert bar because Lightline takes care of it
+set laststatus=2  " Needed to ensure Lightline is shown
+set showtabline=1 " Show tab line as soon as there are at least 2
+let g:bufferline_echo = 1
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
+      \ 'colorscheme': 'neodark',
       \ 'active': {
-      \ 'left': [ ['mode', 'paste'],
-      \ ['fugitive', 'readonly', 'filename', 'modified'],
-      \ ['bufferline'] ],
-      \ 'right': [ [ 'lineinfo' ], ['percent'] ]
+      \     'left':  [  ['mode', 'paste'],
+      \                 ['fugitive', 'readonly', 'filename', 'modified'] ],
+      \     'right': [  ['lineinfo'], ['percent'], 
+      \                 ['linter_errors', 'linter_warnings', 'linter_ok'] ]
       \ },
       \ 'component': {
-      \ 'bufferline': '%{bufferline#refresh_status()}%{g:bufferline_status_info.before}'.
-      \ '%#TabLineSel#%{g:bufferline_status_info.current}'.
-      \ '%#LightLineLeft_active_2#%{g:bufferline_status_info.after}',
-      \ 'readonly': '%{&filetype=="help"?"":&readonly?"🔒":""}',
-      \ 'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
-      \ 'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}'
+      \     'readonly': '%{&filetype=="help"?"":&readonly?"🔒":""}',
+      \     'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
+      \     'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}'
+      \ },
+      \ 'component_expand': {
+      \     'linter_warnings': 'lightline#ale#warnings',
+      \     'linter_errors': 'lightline#ale#errors',
+      \     'linter_ok': 'lightline#ale#ok',
+      \ },
+      \ 'component_type': {
+      \     'linter_warnings': 'warning',
+      \     'linter_errors': 'error',
+      \     'linter_ok': 'green',
       \ },
       \ 'component_visible_condition': {
-      \ 'readonly': '(&filetype!="help"&& &readonly)',
-      \ 'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
-      \ 'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())'
+      \     'readonly': '(&filetype!="help"&& &readonly)',
+      \     'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
+      \     'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())'
       \ },
       \ 'separator': { 'left': ' ', 'right': ' ' },
       \ 'subseparator': { 'left': ' ', 'right': ' ' }
       \ }
+let g:lightline.tabline = {
+    \ 'left': [ ['tabs'] ],
+    \ 'right':[ ['close'] ] }
+let g:lightline#ale#indicator_warnings = ""
+let g:lightline#ale#indicator_errors = ""
+let g:lightline#ale#indicator_ok = ""
 
+" ALE settings
+let g:ale_linters = {
+    \ 'cpp': ['clang','clangtidy','clang-format','cppcheck','cpplint','gcc']
+    \ } " No clangcheck because it doesn't include c++11 standard
+ 
 " UtiliSnips settings:
 let g:UltiSnipsExpandGrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<tab>"
@@ -171,12 +210,41 @@ map <C-k> <Plug>(easymotion-k)
 map <C-h> <Plug>(easymotion-linebackward)
 
 " Highlight the 80th character
-highlight ColorColumn ctermbg=DarkCyan
-call matchadd('ColorColumn', '\%81v', 100)
+set cc=80
 
 " NERDCommenter settings:
 let g:NERDSpaceDelims = 1 " Add one space after comment 
 
+" Use man 3 as the K lookup if file is C
+autocmd BufNewFile,BufRead *.c runtime ftplugin/man.vim
+autocmd BufNewFile,BufRead *.c set keywordprg=:Man\ 3
+" man 1 if bash
+autocmd BufNewFile,BufRead *.sh runtime ftplugin/man.vim
+autocmd BufNewFile,BufRead *.sh set keywordprg=:Man\ 1
+
 " Clojure Settings
 let g:redl_use_vsplit = 1 " split REPL vertically
 let g:rainbow_active  = 1 " Rainbow Paren active
+
+" Sets color scheme:
+syntax enable
+set termguicolors
+let g:neodark#background = '#202020'
+set background=dark
+colorscheme neodark
+
+" Sets the cursor to be a line in insert mode and block in normal mode
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
+
+" optional reset cursor on start:
+augroup myCmds
+au!
+autocmd VimEnter * silent !echo -ne "\e[2 q"
+augroup END
+
+" This is for tagbar
+nnoremap <F8> :TagbarToggle<CR>
+
+" jk at the same time exits insert mode
+call arpeggio#map('i', '', 0, 'jk', '<Esc>')
