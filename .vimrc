@@ -1,7 +1,8 @@
 " Starts the VimPlug block
 call plug#begin('~/.vim/plugged')
 
-
+" Plug 'xolox/vim-easytags'
+" Plug 'xolox/vim-misc'
 Plug 'kana/vim-arpeggio'         " Mappings for pressing 2 keys at once
 Plug 'ktonga/vim-follow-my-lead' " <Leader>fml shows all mappings
 Plug 'majutsushi/tagbar'         " Handles showing class instances
@@ -43,8 +44,8 @@ Plug 'dgrnbrg/vim-redl',
             \ {'for':'clojure'} " Clojure REPL session
 Plug 'luochen1990/rainbow',                        
             \ {'for':'clojure'} " Rainbow Parenthesis
-Plug 'MicahElliott/vim-clojure-fontlocks',         
-            \ {'for':'clojure'} " Clojure conceal
+" Plug 'MicahElliott/vim-clojure-fontlocks',         
+            " \ {'for':'clojure'} " Clojure conceal
 
 call plug#end()
 
@@ -63,6 +64,8 @@ set infercase      " Infer case while searching
 set tabstop=4      " Tab is 4 spaces
 set shiftwidth=4   " '>' is also 4 spaces
 set expandtab      " Tab is replaced with 4 spaces
+set ignorecase
+set smartcase
 set wildmenu
 set wildmode=full  " Tab complete in Command Bar
 filetype plugin on " Custom plugins for each filetype
@@ -74,6 +77,10 @@ set nowrap                " Long lines don't wrap
 set textwidth=0 wrapmargin=0 " Don't auto-insert newlines
 set ttimeoutlen=100  " Why is there a delay between insert and normal?
                      " Who wants that???
+
+" Sets jumpstack when a number is used with a movement
+nnoremap <expr> k (v:count > 1 ? "m'" . v:count : '') . 'k'
+nnoremap <expr> j (v:count > 1 ? "m'" . v:count : '') . 'j'
 
 " Allow use of , and ; for f and t
 nnoremap ,, ,
@@ -241,6 +248,7 @@ let &t_EI = "\e[2 q"
 augroup myCmds
 au!
 autocmd VimEnter * silent !echo -ne "\e[2 q"
+" autocmd VimEnter * noh
 augroup END
 
 " This is for tagbar
@@ -248,3 +256,4 @@ nnoremap <F8> :TagbarToggle<CR>
 
 " jk at the same time exits insert mode
 call arpeggio#map('i', '', 0, 'jk', '<Esc>')
+imap jj <ESC>
